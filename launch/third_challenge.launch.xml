@@ -1,0 +1,12 @@
+<launch>
+    <!-- third_challenge_node の起動 -->
+    <!-- <node pkg="third_challenge_iwashita" exec="third_challenge_iwashita_node" name="third_challenge_node">
+        <param name="frontal_threshold" value="0.2"/>
+        <param name="base_omega" value="0.6"/>
+    </node> -->
+    
+    <!-- 他のノードの起動 -->
+    <node pkg="roomba_500driver_meiji" exec="main500" name="main500"/>
+    <node pkg="realsense2_camera" exec="realsense2_camera_node" name="realsense2_camera_node"/>
+    <node pkg="ros2_yolo" exec="predictor" name="predictor"/>
+</launch>
