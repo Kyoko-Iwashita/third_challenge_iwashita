@@ -44,7 +44,7 @@ thirdChallenge::thirdChallenge() : Node("third_challenge")
         "/camera/camera/color/camera_info", rclcpp::QoS(10).reliable(), std::bind(&thirdChallenge::camera_info_callback, this, std::placeholders::_1));
 
     // タイマーの設定（50msごとにtimer_callbackを呼び出す）
-    timer_ = this->create_wall_timer(50ms, std::bind(&thirdChallenge::timer_callback, this));
+    timer_ = this->create_wall_timer(50ms, std::bind(&thirdChallenge::timer_callback, this));  // めちゃ
 
 }
 
@@ -81,7 +81,7 @@ void thirdChallenge::box_callback(const std_msgs::msg::Float32MultiArray& msg)
     geometry_msgs::msg::PointStamped camera_point;
     camera_point.header.frame_id = "camera_frame";
     camera_point.header.stamp = this->get_clock()->now();
-    camera_point.point.x = (u - camera_model_.cx()) * Z / camera_model_.fx();
+    camera_point.point.x = (u - camera_model_.cx()) * Z / camera_model_.fx();  // ここでtanを計算している
     camera_point.point.y = (v - camera_model_.cy()) * Z / camera_model_.fy();
     camera_point.point.z = Z;
     RCLCPP_INFO(this->get_logger(), "cmaera_point.point.x = %lf, camera_point.point.y = %lf, camera_point.point.z = %lf\n", camera_point.point.x, camera_point.point.y, camera_point.point.z);
@@ -117,7 +117,7 @@ void thirdChallenge::box_callback(const std_msgs::msg::Float32MultiArray& msg)
 
         // 目標角度を計算（atan2を使用）
         // target_yaw = std::atan2(odom_point_stamped.point.y, odom_point_stamped.point.x);
-        target_yaw = atan2(odom_point_stamped.point.y, odom_point_stamped.point.x);
+        target_yaw = atan2(odom_point_stamped.point.y, odom_point_stamped.point.x);  // 84行目ですでにtanを計算しているので、ここでは引数が一つ（今はodom_point_stamped.point.xのみ）のatanを使うべき
 
 
         RCLCPP_INFO(this->get_logger(), "目標角度: %f [rad]", target_yaw);
@@ -157,7 +157,7 @@ void thirdChallenge::broadcast_transform()
     transformStamped.transform.translation.z = 0.5;  // 例えば、カメラが 0.5m 上にあると仮定
 
     tf2::Quaternion q;
-    q.setRPY(M_PI / 2.0, 0.0, -M_PI / 2.0);
+    q.setRPY(M_PI / 2.0, 0.0, -M_PI / 2.0);  // 120行目以前を修正すれば、ここは0, 0, 0で良いと思われる
     q.normalize();  // クォータニオンの正規化
 
     // 回転なし（単位クォータニオン）
@@ -195,6 +195,7 @@ void thirdChallenge::timer_callback()
     // 角速度を base_omega に固定（0.5 rad/s）
     // double angular_speed = (0 < std::abs(yaw_error) <= 2.0) ? base_omega : -base_omega;
     // double angular_speed;  
+    // 160行目以前を修正すれば、ルンバ角度とカメラ角度は一致するはずであり、しきい値は2.8から0に変わるはず
     if (std::abs(yaw_error) < 2.8)
     {
         // angular_speed = base_omega;
